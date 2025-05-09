@@ -7,12 +7,6 @@ import (
 	"net/http"
 )
 
-type user struct {
-	Name string `json:"Name"`
-	Sex  bool   `json:"Sex"`
-	Age  uint   `json:"Age"`
-}
-
 var users = []user{
 	{Name: "alice", Sex: false, Age: 17},
 	{Name: "arina", Sex: false, Age: 22},
@@ -24,6 +18,7 @@ func getUsers(w http.ResponseWriter, r *http.Request) {
 	err := json.NewEncoder(w).Encode(users)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
 	}
 }
 
