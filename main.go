@@ -1,41 +1,20 @@
 package main
 
-import (
-	"fmt"
-	"io"
-	"net/http"
-	"os"
-	"sync"
-)
+import "net/http"
 
-const Url = "https://cataas.com/cat"
-const maxLoad = 10
-
-func getCat() []byte {
-	resp, err := http.Get(Url)
-	if err != nil {
-		panic(err)
-	}
-	defer resp.Body.Close()
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
-		panic(err)
-	}
-	return body
+type server struct {
+	addr string
 }
 
+func (s *server) ServeHTTP(http.ResponseWriter, *http.Request) {
+
+}
+
+var serv = &server{addr: ":777"}
+
 func main() {
-	var wg sync.WaitGroup
-	for i := 0; i < maxLoad; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			file := getCat()
-			err := os.WriteFile(fmt.Sprintf("cat%d.jpg", i), file, 0666)
-			if err != nil {
-				panic(err)
-			}
-		}()
+	err := http.ListenAndServe(serv.addr, serv)
+	if err != nil {
+		return
 	}
-	wg.Wait()
 }
