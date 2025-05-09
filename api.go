@@ -2,8 +2,7 @@ package main
 
 import (
 	"encoding/json"
-	"fmt"
-	"io"
+	"github.com/gorilla/schema"
 	"net/http"
 )
 
@@ -23,11 +22,17 @@ func getUsers(w http.ResponseWriter, r *http.Request) {
 }
 
 func updateUsers(w http.ResponseWriter, r *http.Request) {
-	body, err := io.ReadAll(r.Body)
+	w.Header().Set("Content-Type", "application/json")
+	var decoder = schema.NewDecoder()
+	err := decoder.Decode(&users, r.PostForm)
+	if err != nil {
+		return
+	}
+	resp, err := json.Marshal(users)
 	if err != nil {
 		panic(err)
 	}
-	_, err = w.Write([]byte(fmt.Sprintf("hello, %s", string(body))))
+	_, err = w.Write([]byte(resp))
 	if err != nil {
 		return
 	}
