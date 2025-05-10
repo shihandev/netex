@@ -8,8 +8,6 @@ import (
 
 var users = []user{
 	{Name: "alice", Sex: false, Age: 17},
-	{Name: "arina", Sex: false, Age: 22},
-	{Name: "alex", Sex: true, Age: 20},
 }
 
 func getUsers(w http.ResponseWriter, r *http.Request) {
@@ -23,17 +21,17 @@ func getUsers(w http.ResponseWriter, r *http.Request) {
 
 func updateUsers(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	var decoder = schema.NewDecoder()
-	err := decoder.Decode(&users, r.PostForm)
-	if err != nil {
+
+	if err := r.ParseForm(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	resp, err := json.Marshal(users)
-	if err != nil {
-		panic(err)
-	}
-	_, err = w.Write([]byte(resp))
-	if err != nil {
+
+	var temp user
+	decoder := schema.NewDecoder()
+	if err := decoder.Decode(&temp, r.Form); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
+	users = append(users, temp)
 }
